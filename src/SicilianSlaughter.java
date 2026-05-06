@@ -1,23 +1,19 @@
-import java.util.List;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 
 public class SicilianSlaughter {
     public static void main(String[] args) {
         Board board = new Board();
         MoveGenerator moveGenerator = new MoveGenerator();
-        Random random = new Random();
         Scanner scanner = new Scanner(System.in);
 
         while (scanner.hasNextLine()) {
-            String input = scanner.nextLine().trim();
-            String[] tokens = input.split("\\s+");
+            String[] tokens = scanner.nextLine().trim().split("\\s+");
             if (tokens.length == 0) continue;
 
             switch (tokens[0]) {
                 case "uci":
                     System.out.println("id name SicilianSlaughter");
-                    System.out.println("id author You");
+                    System.out.println("id author Samarpit Rawat");
                     System.out.println("uciok");
                     break;
                 case "isready":
@@ -29,44 +25,29 @@ public class SicilianSlaughter {
                 case "position":
                     if (tokens.length > 1 && tokens[1].equals("startpos")) {
                         board.reset();
-                    } else if (tokens.length > 1 && tokens[1].equals("fen")) {
-                        StringBuilder fen = new StringBuilder();
-                        int idx = 2;
-                        while (idx < tokens.length && !tokens[idx].equals("moves")) {
-                            fen.append(tokens[idx]).append(" ");
-                            idx++;
-                        }
-                        board.parseFen(fen.toString().trim());
                     }
-
-                    int movesIndex = -1;
                     for (int i = 0; i < tokens.length; i++) {
                         if (tokens[i].equals("moves")) {
-                            movesIndex = i;
+                            for (int j = i + 1; j < tokens.length; j++) {
+                                board.makeMove(tokens[j]);
+                            }
                             break;
-                        }
-                    }
-                    if (movesIndex != -1) {
-                        for (int i = movesIndex + 1; i < tokens.length; i++) {
-                            board.makeMove(tokens[i]);
                         }
                     }
                     break;
                 case "go":
-                    List<Move> legalMoves = moveGenerator.generateMoves(board);
-                    if (legalMoves.isEmpty()) {
+                    List<Move> moves = moveGenerator.generateMoves(board);
+                    if (moves.isEmpty()) {
                         System.out.println("bestmove 0000");
                     } else {
-                        Move bestMove = legalMoves.get(random.nextInt(legalMoves.size()));
-                        System.out.println("bestmove " + bestMove.toString());
+                        moves.sort((m1, m2) -> Integer.compare(m2.score, m1.score));
+                        System.out.println("bestmove " + moves.get(0).toString());
                     }
                     break;
                 case "quit":
                     scanner.close();
                     System.exit(0);
-                    break;
-                default:
-                    break;
+                    return;
             }
         }
     }

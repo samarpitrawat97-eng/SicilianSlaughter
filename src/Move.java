@@ -2,7 +2,7 @@ public class Move {
     public int from;
     public int to;
     public char promotion;
-
+    public int score;
     public Move(int from, int to, char promotion) {
         this.from = from;
         this.to = to;
